@@ -27,19 +27,11 @@ public class Main{
 		
 		dfs(1);
 		
-		int res = 0;
+		long res = 0;
 		for (int i=2; i<=N; i++) {
-			
 			int cnt = subTree[i];
-			
-			if (cnt % 2 == 0) {
-				res += (2 * N - cnt - 1) * (cnt/2); 
-			} else {
-				res += (2 * N - cnt - 1) * (cnt/2) + (N - (cnt/2) - 1); 
-			}
-//			System.out.println(i + " " + res);
+			res += 1L * (cnt * (2 * (N-1) + ((cnt-1) * -1)))/2;
 		}
-//		System.out.println(Arrays.toString(subTree));
 		System.out.println(res);
 	}
 	
