@@ -1,43 +1,47 @@
 import java.util.*;
 class Solution {
     List<Integer>[] g;
+    boolean[][] v;
     int[] info;
-    int N;
+    int answer;
     public int solution(int[] info, int[][] edges) {
-        int answer = 0;
+        answer = 0;
+        g = new List[info.length]; for(int i=0; i<info.length; i++) g[i] = new ArrayList<>();
+        v = new boolean[info.length][1 << info.length];
         this.info = info;
-        g = new List[info.length]; for (int i=0; i<info.length; i++) g[i] = new ArrayList<>();
+        
         for (int i=0; i<info.length-1; i++) {
             int s = edges[i][0];
             int e = edges[i][1];
             g[s].add(e);
             g[e].add(s);
         }
-        this.N = info.length;
-        answer = dfs(1, 0, 1);
-        return answer+1;
+        
+        v[0][1] = true;
+        dfs(1, 1, 0);
+        return answer;
     }
     
-    int dfs(int nodes, int wolf, int sheep) {
-        int res = 0;
-        
-        for (int i=0; i<N; i++) {
-            if ((nodes & (1<<i)) != 0) {
-                for (int nxt : g[i]) {
-                    
-                    if ((nodes & (1<<nxt)) != 0) continue;
-                    // System.out.println(nxt);
-                    int nxtwolf = wolf + (info[nxt]==0?0:1);
-                    int nxtsheep = sheep + (info[nxt]==0?1:0);
-                    
-                    if (nxtwolf < nxtsheep) {
-                        res = Math.max(res, dfs(nodes | (1<<nxt), nxtwolf, nxtsheep) + (info[nxt]==0?1:0));
-                    }
-                   
-                }
+    void dfs(int key, int sheep, int wolf) {
+        answer = Math.max(answer, sheep);
+
+        for (int node = 0; node < info.length; node++) {
+
+            // 아직 방문하지 않은 노드는 출발점으로 사용할 수 없음
+            if ((key & (1 << node)) == 0) continue;
+
+            for (int nxt : g[node]) {
+
+                // 이미 먹은 동물
+                if ((key & (1 << nxt)) != 0) continue;
+
+                int ns = sheep + (info[nxt] == 0 ? 1 : 0);
+                int nw = wolf + (info[nxt] == 1 ? 1 : 0);
+
+                if (ns <= nw) continue;
+
+                dfs(key | (1 << nxt), ns, nw);
             }
         }
-
-        return res;
     }
 }
