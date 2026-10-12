@@ -1,41 +1,56 @@
 import java.util.*;
+
 class Solution {
-    static String[] arr;
-    static int[][] minDp;
-    static int[][] maxDp;
-    void dfs(int l, int r) {
-        if (l > r) return;
-        if (l == r) {
-            minDp[l][r] = maxDp[l][r] = Integer.parseInt(arr[l]);
-            return;
-        }
-        if(minDp[l][r] != 100000000) return;
-        
-        for (int i=l; i<r; i+=2) {
-            dfs(l, i);
-            dfs(i+2, r);
-            
-            if (arr[i+1].equals("+")) {
-                maxDp[l][r] = Math.max(maxDp[l][r], maxDp[l][i]+maxDp[i+2][r]);
-                minDp[l][r] = Math.min(minDp[l][r], minDp[l][i]+minDp[i+2][r]);
-            } else {
-                maxDp[l][r] = Math.max(maxDp[l][r], maxDp[l][i]-minDp[i+2][r]);
-                minDp[l][r] = Math.min(minDp[l][r], minDp[l][i]-maxDp[i+2][r]);
-            }
-            
-        }
-    }
-    
-    public int solution(String arr[]) {
+    String[] arr;
+    int[][] maxDp, minDp;
+    boolean[][] visited;
+
+    public int solution(String[] arr) {
         this.arr = arr;
         int N = arr.length;
-        minDp = new int[N][N];
+
         maxDp = new int[N][N];
-        for (int i=0; i<N; i++) {
-            Arrays.fill(minDp[i], 100000000);
-            Arrays.fill(maxDp[i], -1000000000);
+        minDp = new int[N][N];
+        visited = new boolean[N][N];
+
+        dfs(0, N - 1);
+
+        return maxDp[0][N - 1];
+    }
+
+    void dfs(int l, int r) {
+        if (visited[l][r]) return;
+        visited[l][r] = true;
+
+        if (l == r) {
+            maxDp[l][r] = Integer.parseInt(arr[l]);
+            minDp[l][r] = Integer.parseInt(arr[l]);
+            return;
         }
-        dfs(0, N-1);
-        return maxDp[0][N-1];
+
+        int max = Integer.MIN_VALUE;
+        int min = Integer.MAX_VALUE;
+
+        for (int mid = l + 2; mid <= r; mid += 2) {
+            dfs(l, mid - 2);
+            dfs(mid, r);
+
+            if (arr[mid - 1].equals("+")) {
+                max = Math.max(max,
+                    maxDp[l][mid - 2] + maxDp[mid][r]);
+
+                min = Math.min(min,
+                    minDp[l][mid - 2] + minDp[mid][r]);
+            } else {
+                max = Math.max(max,
+                    maxDp[l][mid - 2] - minDp[mid][r]);
+
+                min = Math.min(min,
+                    minDp[l][mid - 2] - maxDp[mid][r]);
+            }
+        }
+
+        maxDp[l][r] = max;
+        minDp[l][r] = min;
     }
 }
