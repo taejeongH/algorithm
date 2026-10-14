@@ -1,31 +1,29 @@
 import java.util.*;
+
 class Solution {
     public int solution(int[] a) {
+        int answer = 0;
         int N = a.length;
-        if(a.length==1) return 0;
-		int[] cnt = new int[N+1];
 
-        for (int i=0; i<N; i++) {
-            cnt[a[i]]++;
-        }
-        
-        int max = 0;
-        for (int i=0; i<=N; i++) {
-            if (max >= cnt[i]) continue;
-            
-            int curCount = 0;
-            int idx = 0;
-            while(idx < N-1) {
-                if (a[idx]!= a[idx+1] && (a[idx] == i || a[idx+1] == i)) {
-                    idx+=2;
-                    curCount++;
-                } else {
-                    idx++;
-                }
+        int[] count = new int[N];
+        for (int x : a) count[x]++;
+
+        for (int i = 0; i < N; i++) {
+            if (count[i] * 2 <= answer) continue;
+
+            int cur = 0;
+
+            for (int j = 0; j < N - 1; j++) {
+                if (a[j] == a[j + 1]) continue;
+                if (a[j] != i && a[j + 1] != i) continue;
+
+                cur += 2;
+                j++;
             }
-            max = Math.max(curCount, max);
+
+            answer = Math.max(answer, cur);
         }
-        
-        return max*2;
+
+        return answer;
     }
 }
