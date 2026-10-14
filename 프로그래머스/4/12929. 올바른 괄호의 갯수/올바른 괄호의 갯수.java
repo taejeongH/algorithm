@@ -1,24 +1,15 @@
 class Solution {
-    int N;
-    int ans;
+    int n;
     public int solution(int n) {
-        N = n;
-        ans = 0;
-        dfs(0, 0, 0);
-        return ans;
+        this.n = n;
+        return dfs(0, 0);
     }
     
-    public void dfs(int depth, int open, int close){
-        if (depth == N*2) {
-            if(open==close) ans++;
-            return;
-        }
+    public int dfs(int l, int r) {
+        if (r > l) return 0;
+        if (l == n && r == n) return 1;
+        if (l > n || r > n) return 0;
         
-        if (open <= close) {
-            dfs(depth+1, open+1, close);
-        } else {
-            dfs(depth+1, open+1, close);
-            dfs(depth+1, open, close+1);
-        }
+        return dfs(l+1, r) + dfs(l, r+1);
     }
 }
