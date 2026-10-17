@@ -1,62 +1,54 @@
+import java.util.*;
 class Solution {
-    class Trie{
-        class Node{
-            int[] cnt;
-            Node[] words;
-            boolean endsOfWord;
-            
-            public Node() {
-                words = new Node[26];
-                cnt = new int[26];
-            }
+    class Node {
+        Node[] words;
+        int[] count;
+        boolean endsOfWord;
+        
+        public Node() {
+            words = new Node[26];
+            count = new int[26];
+            endsOfWord = false;
+        }
+    }
+    
+    void add(Node cur, int idx, String word) {
+        int i = word.charAt(idx) - 'a';
+        
+        if (cur.words[i] == null) {
+            cur.words[i] = new Node();
         }
         
-        Node head;
+        cur.count[i]++;
         
-        public Trie() {
-            head = new Node();
+        if(idx == word.length()-1) {
+            cur.endsOfWord = true;
+            return;
         }
         
-        void insert(Node cur, String s, int idx) {
-            if (idx >= s.length()) return;
-            
-            int c = s.charAt(idx) - 'a';
-            if (cur.words[c] == null) {
-                cur.words[c] = new Node();
-            }
-            cur.cnt[c]++;
-            
-            if (idx == s.length()-1) {
-                cur.endsOfWord = true;  
-            } 
-            
-            insert(cur.words[c], s, idx+1);
-        }
+        add(cur.words[i], idx+1, word);
+    }
+    
+    int find(Node cur, int idx, String word) {
+        if (idx == word.length()-1 || cur.count[word.charAt(idx) - 'a'] == 1) return 0;
         
-        int find(Node cur, String s, int idx) {
-            if (s.length()==idx) return idx;
-            
-            int c = s.charAt(idx) - 'a';
-            if (cur.cnt[c] == 1) return idx+1;
-            
-            
-            return find(cur.words[c], s, idx+1);
-        }
-        
-    }    
-
+        return find(cur.words[word.charAt(idx) - 'a'], idx+1, word) + 1;
+    }
+    
+    Node root;
     public int solution(String[] words) {
         int answer = 0;
+        int N = words.length;
         
-        Trie t = new Trie();
-        
-        for (int i=0; i<words.length; i++) {
-            t.insert(t.head, words[i], 0);
+        root = new Node();
+        for (int i=0; i<N; i++) {
+            add(root, 0, words[i]);
         }
         
-        for (int i=0; i<words.length; i++) {
-            answer += t.find(t.head, words[i], 0);
+        for (int i=0; i<N; i++) {
+            answer += find(root, 0, words[i]) + 1;
         }
+        
         return answer;
     }
 }
