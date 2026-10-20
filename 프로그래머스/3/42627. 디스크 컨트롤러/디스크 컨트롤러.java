@@ -1,62 +1,60 @@
 import java.util.*;
 class Solution {
+    class Job {
+        int id;
+        int takeTime;
+        int start;
+        
+        public Job(int id, int takeTime, int start) {
+            this.id = id;
+            this.takeTime = takeTime;
+            this.start = start;
+        }
+    }
     public int solution(int[][] jobs) {
         int answer = 0;
+        int N = jobs.length;
         
-        PriorityQueue<int[]> pq = new PriorityQueue<>((o1, o2) -> {
-            if (o1[2] == o2[2]) {
-                if (o1[1] == o2[1]) return o1[0] - o2[0];
-                return o1[1] - o2[1];
-            }
-            return o1[2] - o2[2];
+        PriorityQueue<Job> pq = new PriorityQueue<>((o1, o2) -> {
+           if (o1.takeTime == o2.takeTime) {
+               if (o1.start == o2.start) return o1.id - o2.id;
+               return o1.start-o2.start;
+           } 
+            return o1.takeTime - o2.takeTime;
         });
         
-        PriorityQueue<int[]> pending = new PriorityQueue<>((o1, o2) -> o1[1]-o2[1]);
-        for (int i=0; i<jobs.length; i++) {
-            int start = jobs[i][0];
-            int take = jobs[i][1];
-            
-            pending.add(new int[] {i, start, take});
+        Job[] jobArr = new Job[N];
+        for (int i=0; i<N; i++) {
+            jobArr[i] = new Job(i, jobs[i][1], jobs[i][0]);
         }
         
-        int end = 0;
-        while (!pending.isEmpty()) {
-            while (!pending.isEmpty() && end >= pending.peek()[1]) {
-                pq.add(pending.poll());
+        Arrays.sort(jobArr, (o1, o2) -> o1.start - o2.start);
+        
+        int curTime = 0;
+        int cur = 0;
+        while (cur < N) {
+            while (cur < N && jobArr[cur].start <= curTime) {
+                pq.add(jobArr[cur++]);
             }
             
-            
             if (!pq.isEmpty()) {
-                int[] now = pq.poll();
-                int id = now[0];
-                int start = now[1];
-                int take = now[2];
-
-                int newstart = Math.max(end, start);
-                end = newstart + take;
-                answer += end - start;
+                Job j = pq.poll();
+                int endTime = j.takeTime + curTime;
+                answer += endTime - j.start;
+                curTime = endTime;
             } else {
-                end++;
-            }       
+                curTime = jobArr[cur].start;
+            }
         }
         
         while(!pq.isEmpty()) {
-            int[] now = pq.poll();
-            int id = now[0];
-            int start = now[1];
-            int take = now[2];
-
-            int newstart = Math.max(end, start);
-            end = newstart + take;
-            answer += end - start;
+            Job j = pq.poll();
+            int endTime = j.takeTime + curTime;
+            answer += endTime - j.start;
+            curTime = endTime;
         }
         
-        return answer/jobs.length;
+        
+        return answer/N;
     }
 }
-
-/*
-    1. 소요 시간 짧은
-    2. 요청 시각 빠른
-    3. 작업의 번호가 작은 것
-*/
