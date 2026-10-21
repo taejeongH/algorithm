@@ -1,45 +1,41 @@
 class Solution {
-    boolean can(int s, int e) {
-        int make = (sum[e]-sum[s-1])/2;
-        int cur = 0;
-        
-        for (int i=s; i<=e; i++) {
-            cur += cookie[i-1];
-            if (cur == make) return true;
-            if (cur > make) return false;
-        }
-        return false;
-    }
-    
-    static int[] sum;
-    static int[] cookie;
+    int N;
+    int[] sum;
     public int solution(int[] cookie) {
         int answer = 0;
-        
-        int N = cookie.length;
-        
+        N = cookie.length;
         sum = new int[N+1];
-        this.cookie = cookie;
+        
         for (int i=1; i<=N; i++) {
             sum[i] = sum[i-1] + cookie[i-1];
         }
         
         
-        for (int i=1; i<=N; i++) {
-            
-            for (int j=N; j>=i+1; j--) {
-                int cur = sum[j] - sum[i-1];
-                if (cur % 2 == 1) continue;
-                
-                if (can(i, j)) {
-                    //System.out.println(i + " " + j);
-                    answer = Math.max(answer, cur/2);
-                    break;
+        for (int l=1; l<N; l++) {
+            for (int r=l+1; r<=N; r++) {
+                if (binarySearch(l, r)) {
+                    answer = Math.max(answer, (sum[r] - sum[l-1])/2);
                 }
             }
-            
-            
         }
+        
         return answer;
+    }
+    
+    boolean binarySearch(int l, int r) {
+        if ((sum[r] - sum[l-1]) % 2 != 0) return false; 
+        
+        int key = (sum[r] - sum[l-1])/2;
+        int lorg = l;
+        while (l <= r) {
+            int mid = (l+r)/2;
+            
+            int cur = sum[mid] - sum[lorg-1];
+            if (cur == key) return true;
+            else if (cur < key) l = mid+1;
+            else r = mid-1;
+        }
+        
+        return false;
     }
 }
