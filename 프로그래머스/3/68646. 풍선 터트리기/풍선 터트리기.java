@@ -1,41 +1,30 @@
 class Solution {
-    
-    void init(int[]map, int start, int end, int node) {
-        if (start > end) return;
-        if (start==end) {
-            tree[node] = map[start];
-            return;
-        }
-        int mid = (start+end)/2;
-        init(map, start, mid, node*2);
-        init(map, mid+1, end, node*2+1);
-        tree[node] = Math.min(tree[node*2], tree[node*2+1]);
-    }
-    
-    int query(int left, int right, int start, int end, int node) {
-        if (end < left || start > right) return INF;
-        if (left <= start && end <= right) return tree[node];
-        
-        int mid = (start+end)/2;
-        return Math.min(query(left, right, start, mid, node*2), query(left, right, mid+1, end, node*2+1));
-    }
-    
-    int[] tree;
-    final int INF = 1_000_000_000;
-    
     public int solution(int[] a) {
+        
         int N = a.length;
-        int answer = N;
-        tree = new int[N*4];
+        int[] leftMin = new int[N];
+        int[] rightMin = new int[N];
         
+        leftMin[0] = a[0];
+        for (int i=1; i<N; i++) {
+            leftMin[i] = Math.min(leftMin[i-1], a[i]);
+        }
         
-        init(a, 0, N-1, 1);
-        for (int i=1; i<=N; i++) {
-            if (query(1, i, 1, N, 1)<a[i-1] 
-                && query(i+1, N, 1, N, 1)<a[i-1]) {
-                answer--;
-            }
+        rightMin[N-1] = a[N-1];
+        for (int i=N-2; i>=0; i--) {
+            rightMin[i] = Math.min(rightMin[i+1], a[i]);
+        }
+        
+        int answer = 0;
+        for (int i=0; i<N; i++) {
+            int count = 0;
+            if (i != 0 && leftMin[i-1] < a[i]) count++;
+            if (i != N-1 && rightMin[i+1] < a[i]) count++;
+            
+            if(count < 2) answer++;
         }
         return answer;
     }
 }
+
+// 왼쪽 오른쪽 중 나보다 작은게 1개 이하 있을 때
