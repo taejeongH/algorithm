@@ -1,74 +1,72 @@
 import java.util.*;
+
 class Solution {
-    final int INF = 1_000_000_000;
+    int[][] dp;
+
     public int[] solution(int target) {
-        int[] answer = {0, 0};
-        
-        int[][] v = new int[target+1][2];
-        for (int i=0; i<=target; i++) {
-            v[i][0] = INF;
-        }
-        ArrayDeque<int[]> que = new ArrayDeque<>();
-        
-        que.add(new int[] {0, 0, 0});
-        while (!que.isEmpty()) {
-            int[] now = que.poll();
-            int sum = now[0];
-            int dis = now[1];
-            int single = now[2];
+        dp = new int[target + 1][2];
 
-            if (v[sum][0] < dis || (v[sum][0] == dis && v[sum][1] > single)) continue;
-
-            if (sum + 50 <= target) {
-                if (v[sum+50][0] == dis+1 && v[sum+50][1] < single+1) {
-                    v[sum+50][0] = dis+1;
-                    v[sum+50][1] = single+1;
-                    que.add(new int[] {sum+50, dis+1, single+1});
-                } else if(v[sum+50][0] > dis+1) {
-                    v[sum+50][0] = dis+1;
-                    v[sum+50][1] = single+1;
-                    que.add(new int[] {sum+50, dis+1, single+1});
-                }
-            }
-            
-            //싱글 먼저
-            for (int i=1; i<=20; i++) {
-                if (sum + i <= target) {
-                    que.add(new int[] {sum+i, dis+1, single+1});
-                    
-                    if (v[sum+i][0] == dis+1 && v[sum+i][1] < single+1) {
-                        v[sum+i][0] = dis+1;
-                        v[sum+i][1] = single+1;
-                        que.add(new int[] {sum+i, dis+1, single+1});
-                    } else if(v[sum+i][0] > dis+1) {
-                        v[sum+i][0] = dis+1;
-                        v[sum+i][1] = single+1;
-                        que.add(new int[] {sum+i, dis+1, single+1});
-                    }
-                    
-                }
-            }
-            
-            for (int i=1; i<=20; i++) {
-                for (int j=2; j<=3; j++) {
-                    if (sum + (i*j) <= target) {
-                        if (v[sum + (i*j)][0] == dis+1 && v[sum + (i*j)][1] < single) {
-                            v[sum + (i*j)][0] = dis+1;
-                            v[sum + (i*j)][1] = single;
-                            que.add(new int[] {sum + (i*j), dis+1, single});
-                        } else if(v[sum + (i*j)][0] > dis+1) {
-                            v[sum + (i*j)][0] = dis+1;
-                            v[sum + (i*j)][1] = single;
-                            que.add(new int[] {sum + (i*j), dis+1, single});
-                        }
-                    }
-                }
-            }
-            
+        for (int i = 0; i <= target; i++) {
+            dp[i][0] = -1;
         }
-        // for (int i=1; i<=target; i++) System.out.println(Arrays.toString(v[i]));
-        return v[target];
+
+        return dfs(target);
     }
-    
-    
+
+    int[] dfs(int target) {
+        if (target == 0) {
+            return new int[]{0, 0};
+        }
+
+        if (dp[target][0] != -1) {
+            return dp[target];
+        }
+
+        int min = Integer.MAX_VALUE;
+        int max = 0;
+
+        // 불 (50점)
+        if (target >= 50) {
+            int[] next = dfs(target - 50);
+
+            min = next[0] + 1;
+            max = next[1] + 1;
+        }
+
+        // 싱글 (1~20점)
+        for (int i = 1; i <= 20; i++) {
+            if (target < i) break;
+
+            int[] next = dfs(target - i);
+
+            int dis = next[0] + 1;
+            int sum = next[1] + 1;
+
+            if (dis < min || (dis == min && sum > max)) {
+                min = dis;
+                max = sum;
+            }
+        }
+
+        // 더블, 트리플
+        for (int i = 1; i <= 20; i++) {
+            for (int j = 2; j <= 3; j++) {
+                int score = i * j;
+
+                if (target < score) continue;
+
+                int[] next = dfs(target - score);
+
+                int dis = next[0] + 1;
+                int sum = next[1];
+
+                if (dis < min || (dis == min && sum > max)) {
+                    min = dis;
+                    max = sum;
+                }
+            }
+        }
+
+        return dp[target] = new int[]{min, max};
+    }
 }
