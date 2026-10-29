@@ -24,11 +24,9 @@ class Solution {
     void dfs(int cur) {
         v[cur] = true;
         
-        int sum = 0;
         for (int nxt : g[cur]) {
             if(v[nxt]) continue;
             dfs(nxt);
-            sum += Math.min(dp[nxt][1], dp[nxt][0]);
         }
         
         for (int nxt : g[cur]) {
