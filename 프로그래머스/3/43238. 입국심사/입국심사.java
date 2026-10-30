@@ -1,41 +1,37 @@
 class Solution {
-    static int[] arr;
-    static int N, M;
+    int[] times;
+    int n;
     public long solution(int n, int[] times) {
-        arr = times;
-        N = arr.length;
-        M = n;
-        int min = Integer.MAX_VALUE;
-        for (int i=0; i<N; i++) {
-            min = Math.min(arr[i], min);
+        long answer = 0;
+        this.times = times;
+        this.n = n;
+        
+        long l = 1L;
+        long r = Long.MAX_VALUE;
+        for (int i=0; i<times.length; i++) {
+            r = Math.min((long) times[i] * n, r);
         }
         
-        long left = 0;
-        long right = (long) min * n;
-        
-        long answer = right;
-        while (left <= right) {
-            long mid = (left+right)/2;
+        while (l <= r) {
+            long mid = (l+r)/2;
             
             if (can(mid)) {
-                right = mid - 1;
-                answer = Math.min(answer, mid);
+                answer = mid;
+                r = mid - 1;
             } else {
-                left = mid + 1;
+                l = mid + 1;
             }
         }
         return answer;
     }
     
-    boolean can(long time) {
-        
+    boolean can(long mid) {
         long sum = 0;
-        for (int i=0; i<N; i++) {
-            if (time < arr[i]) continue;
-            sum += time / arr[i];
-            if (sum >= M) return true;
+        for (int i=0; i<times.length; i++) {
+            sum += mid / times[i];
         }
         
+        if (sum >= n) return true;
         return false;
     }
 }
