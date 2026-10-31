@@ -1,47 +1,49 @@
-class Solution {
+public class Solution {
+    int[][] land;
+    int N, P, Q;
     public long solution(int[][] land, int P, int Q) {
-        int n = land.length;
-
-        long left = 0;
-        long right = 0;
-
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
-                right = Math.max(right, land[i][j]);
+        N = land.length;
+        this.land = land;
+        this.P = P;
+        this.Q = Q;
+        
+        int l = Integer.MAX_VALUE;
+        int r = 0;
+        for (int i=0; i<N; i++) {
+            for (int j=0; j<N; j++) {
+                r = Math.max(land[i][j], r);
+                l = Math.min(land[i][j], l);
             }
         }
-
-        while (left < right) {
-            long mid = (left + right) / 2;
-
-            long cost1 = getCost(land, mid, P, Q);
-            long cost2 = getCost(land, mid + 1, P, Q);
-
-            if (cost1 <= cost2) {
-                right = mid;
+        
+        
+        while (l < r) {
+            int mid = (l+r)/2;
+            
+            long cur = get(mid);
+            long right = get(mid+1);
+            //System.out.println(mid + " " + cur + " " + right);
+            if (cur > right) {
+                l = mid + 1;
             } else {
-                left = mid + 1;
+                r = mid;
             }
         }
-
-        return getCost(land, left, P, Q);
+        //System.out.println(l + " " + r);
+        return get(r);
     }
-
-    private long getCost(int[][] land, long target, int P, int Q) {
-        long cost = 0;
-
-        for (int i = 0; i < land.length; i++) {
-            for (int j = 0; j < land.length; j++) {
-                long h = land[i][j];
-
-                if (h < target) {
-                    cost += (target - h) * P;
+    
+    long get(int mid) {
+        long sum = 0;
+        for (int i=0; i<N; i++) {
+            for (int j=0; j<N; j++) {
+                if (mid < land[i][j]) {
+                    sum += (long) (land[i][j] - mid) * Q;
                 } else {
-                    cost += (h - target) * Q;
+                    sum += (long) (mid - land[i][j]) * P;
                 }
             }
         }
-
-        return cost;
+        return sum;
     }
 }
