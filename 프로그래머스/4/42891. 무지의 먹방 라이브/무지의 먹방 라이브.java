@@ -1,40 +1,39 @@
 import java.util.*;
+
 class Solution {
     public int solution(int[] food_times, long k) {
-        int answer = 0;
         int N = food_times.length;
-        
-        PriorityQueue<int[]> pq = new PriorityQueue<>((o1, o2) -> o1[1] - o2[1]);
-        
-        for (int i=0; i<N; i++){
-            pq.add(new int[] {i, food_times[i]});
+        int[][] food = new int[N][2];
+
+        for (int i = 0; i < N; i++) {
+            food[i][0] = i;
+            food[i][1] = food_times[i];
         }
-        
-        long time = 0;
-        long rotCount = 0;
-        while (!pq.isEmpty()) {
-            int minValue = pq.peek()[1];
-            long cnt = minValue-rotCount;
-            
-            if (time + ((long) pq.size() * cnt) > k) {
-                break;
+
+        Arrays.sort(food, (a, b) -> Integer.compare(a[1], b[1]));
+
+        int cur = 0;
+
+        for (int i = 0; i < N; i++) {
+            long sum = (long) (food[i][1] - cur) * (N - i);
+
+            if (sum > k) {
+                ArrayList<Integer> idxs = new ArrayList<>();
+
+                for (int j = i; j < N; j++) {
+                    idxs.add(food[j][0]);
+                }
+
+                Collections.sort(idxs);
+
+                int idx = (int) (k % (N - i));
+                return idxs.get(idx) + 1;
             }
-            time += pq.size() * cnt;
-            rotCount += cnt;
-            pq.poll();
-        }
-        
-        if (pq.isEmpty()) return -1;
 
-        int idx = (int) ((k - time) % pq.size());
-
-        ArrayList<int[]> arr = new ArrayList<>();
-        while(!pq.isEmpty()) {
-            arr.add(pq.poll());
+            cur = food[i][1];
+            k -= sum;
         }
 
-        Collections.sort(arr, (o1, o2) -> o1[0] - o2[0]);
-
-        return arr.get(idx)[0] + 1;
+        return -1;
     }
 }
