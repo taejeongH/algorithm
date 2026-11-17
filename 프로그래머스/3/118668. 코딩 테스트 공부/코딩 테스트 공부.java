@@ -1,68 +1,51 @@
 import java.util.*;
 
 class Solution {
-    int aMax, cMax, N;
     int[][] problems;
+    int N, alMax, coMax;
     final int INF = 1_000_000_000;
     int[][] dp;
 
     public int solution(int alp, int cop, int[][] problems) {
         this.problems = problems;
         N = problems.length;
+        alMax = 0;
+        coMax = 0;
 
-        for (int[] p : problems) {
-            aMax = Math.max(aMax, p[0]);
-            cMax = Math.max(cMax, p[1]);
+        for (int i=0; i<N; i++) {
+            alMax = Math.max(alMax, problems[i][0]);
+            coMax = Math.max(coMax, problems[i][1]);
         }
 
-        alp = Math.min(alp, aMax);
-        cop = Math.min(cop, cMax);
-
-        dp = new int[aMax + 1][cMax + 1];
-
-        for (int i = 0; i <= aMax; i++) {
-            Arrays.fill(dp[i], -1);
-        }
+        dp = new int[alMax+1][coMax+1];
+        for (int[] row : dp) Arrays.fill(row, -1);
 
         return dfs(alp, cop);
     }
 
-    int dfs(int algo, int code) {
-        if (algo == aMax && code == cMax) return 0;
+    int dfs(int al, int co) {
+        al = Math.min(al, alMax);
+        co = Math.min(co, coMax);
 
-        if (dp[algo][code] != -1) return dp[algo][code];
+        if (al == alMax && co == coMax) return 0;
+        if (dp[al][co] != -1) return dp[al][co];
 
         int res = INF;
 
-        // 알고력 1 올리기
-        if (algo < aMax) {
-            res = Math.min(res, dfs(algo + 1, code) + 1);
-        }
+        if (al < alMax) res = Math.min(dfs(al+1, co)+1, res);
+        if (co < coMax) res = Math.min(dfs(al, co+1)+1, res);
 
-        // 코딩력 1 올리기
-        if (code < cMax) {
-            res = Math.min(res, dfs(algo, code + 1) + 1);
-        }
+        for (int i=0; i<N; i++) {
+            if (problems[i][0] <= al && problems[i][1] <= co) {
+                int na = Math.min(al+problems[i][2], alMax);
+                int nc = Math.min(co+problems[i][3], coMax);
 
-        // 문제 풀기
-        for (int[] p : problems) {
-            int algoReq = p[0];
-            int codeReq = p[1];
-            int algoInc = p[2];
-            int codeInc = p[3];
-            int cost = p[4];
+                if (na == al && nc == co) continue;
 
-            if (algo >= algoReq && code >= codeReq) {
-                int nextAlgo = Math.min(aMax, algo + algoInc);
-                int nextCode = Math.min(cMax, code + codeInc);
-
-                // 보상이 0,0인 이상한 문제 방어
-                if (nextAlgo == algo && nextCode == code) continue;
-
-                res = Math.min(res, dfs(nextAlgo, nextCode) + cost);
+                res = Math.min(dfs(na, nc)+problems[i][4], res);
             }
         }
 
-        return dp[algo][code] = res;
+        return dp[al][co] = res;
     }
 }
